@@ -2,6 +2,8 @@
 import { getLog } from "@/data/log";
 import {
   Box,
+  FormControl,
+  InputLabel,
   MenuItem,
   Paper,
   Select,
@@ -11,7 +13,7 @@ import {
   alpha,
   styled,
 } from "@mui/material";
-import { DataGrid, GridToolbar, gridClasses } from "@mui/x-data-grid";
+import { DataGrid, GridOverlay, GridToolbar, gridClasses } from "@mui/x-data-grid";
 import { useEffect } from "react";
 import useSWRMutation from "swr/mutation";
 
@@ -185,23 +187,30 @@ const columns = [
   {
     field: "subject",
     headerName: "Subject",
-    width: 200,
+    width: 300,
     valueGetter: (value, row) => row.details.subject,
+  },
+  {
+    field: "timestamp",
+    headerName: "Timestamp",
+    width: 200,
+    type: "dateTime",
+    valueGetter: (value, row) => new Date(row.timestamp),
+    valueFormatter: (value) =>
+      value.toLocaleString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      }),
   },
 ];
 
 export default function Home() {
-  const { trigger,isMutating,data,error } = useSWRMutation(
-    "log",
-    getLog
-  );
+  const { trigger, isMutating, data, error } = useSWRMutation("log", getLog);
 
   useEffect(() => {
-    trigger({logType:"IMMI", date:new Date()});
+    trigger({ logType: "IMMI", date: new Date() });
   }, []);
-
-
-
 
   const handleWorkFlowChange = (event) => {
     console.log(event.target.value);
@@ -226,18 +235,23 @@ export default function Home() {
             Email Logs
           </Typography>
           <Stack direction="row" spacing={2}>
-            <Select
-              label="Log Type"
-              variant="outlined"
-              defaultValue="IMMI"
-              sx={{ width: "200px" }}
-              onChange={handleWorkFlowChange}
-            >
-              <MenuItem value="IMMI">IMMI</MenuItem>
-              <MenuItem value="bridging">Bridging</MenuItem>
-              <MenuItem value="jotform">Jotform</MenuItem>
-              <MenuItem value="s56">S56</MenuItem>
-            </Select>
+            <FormControl variant="outlined">
+              <InputLabel if="workflow">Workflow</InputLabel>
+              <Select
+                labelId="workflow"
+                id="workflow"
+                label="Workflow"
+                variant="outlined"
+                defaultValue="IMMI"
+                sx={{ width: "200px" }}
+                onChange={handleWorkFlowChange}
+              >
+                <MenuItem value="IMMI">IMMI</MenuItem>
+                <MenuItem value="bridging">Bridging</MenuItem>
+                <MenuItem value="jotform">Jotform</MenuItem>
+                <MenuItem value="s56">S56</MenuItem>
+              </Select>
+            </FormControl>
             <TextField
               label="Date"
               type="date"
@@ -253,12 +267,15 @@ export default function Home() {
           <StripedDataGrid
             rows={sample_data}
             columns={columns}
-            slots={{ toolbar: GridToolbar }}
+            slots={{
+              toolbar: GridToolbar
+            }}
             slotProps={{ toolbar: { showQuickFilter: true } }}
             disableDensitySelector
             getRowClassName={(params) =>
               params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
             }
+            loading={isMutating}
           />
         </Box>
       </Stack>
