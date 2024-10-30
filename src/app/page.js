@@ -14,6 +14,41 @@ import { DatePicker, LocalizationProvider, AdapterDayjs } from "@mui/x-date-pick
 
 const ODD_OPACITY = 0.2;
 
+const sample_data = 
+[
+  {
+    id: 1,
+    "action": "End",
+    "details": {
+      "email": "alice@example.com",
+      "subject": "Application Submission for Alice Johnson"
+    },
+    "timestamp": "2024-10-30T04:10:05.346003+00:00",
+    "workflow": "Application Submission"
+  },
+  {
+    id: 2,
+    "action": "Email Sent",
+    "details": {
+      "email": "alice@example.com",
+      "subject": "Application Submission for Alice Johnson"
+    },
+    "timestamp": "2024-10-30T04:09:05.346003+00:00",
+    "workflow": "Application Submission"
+  },
+  {
+    id: 3,
+    "action": "Start",
+    "details": {
+      "email": "james@example.com",
+      "subject": "Application Submission for Alice Johnson"
+    },
+    "timestamp": "2024-10-30T04:08:05.346003+00:00",
+    "workflow": "Application Submission"
+  },
+]
+
+
 const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
   [`& .${gridClasses.row}.even`]: {
     backgroundColor: theme.palette.grey[200],
@@ -48,16 +83,10 @@ const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
 }));
 
 const columns = [
-  { field: "financeInstrument", headerName: "Finance Instrument", flex: 1 },
-  {
-    field: "createdAt",
-    headerName: "Date of Application",
-    flex: 1,
-    type: "dateTime",
-    valueFormatter: (value) => {
-      return formatDate(value);
-    },
-  },
+  { field: "workflow", headerName: "Workflow", width: 200 },
+  { field: "action", headerName: "Action", width: 200 },
+  { field: "email", headerName: "Email", width: 200, valueGetter: (value,row) => row.details.email },
+  { field: "subject", headerName: "Subject", width: 200, valueGetter: (value,row) => row.details.subject },
 ];
 
 export default function Home() {
@@ -72,7 +101,7 @@ export default function Home() {
           gap: "2",
         }}
       >
-        <Box sx={{ display: "flex", alignItems:"center", justifyContent:"space-between"}}>
+        <Box sx={{ display: "flex", alignItems:"center", justifyContent:"space-between", margin:'10px'}}>
           <Typography variant="h6" sx={{ fontWeight: "medium" }}>
             Email Logs
           </Typography>
@@ -88,24 +117,23 @@ export default function Home() {
               <option value="jotform">Jotform</option>
               <option value="s56">S56</option>
             </Select>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
+            <TextField
               label="Date"
+              type="date"
               variant="outlined"
               sx={{ width: "200px" }}
-              defaultValue={new Date()}
-              renderInput={(params) => <TextField {...params} />}
+              defaultValue="2021-10-01"
             />
-            </LocalizationProvider>
+
           </Stack>
         </Box>
 
         <Box sx={{ flexGrow: "1", width: "100%" }}>
           <StripedDataGrid
-            rows={[]}
+            rows={sample_data}
             columns={columns}
-            // slots={{ toolbar: GridToolbar }}
-            // slotProps={{ toolbar: { showQuickFilter: true } }}
+            slots={{ toolbar: GridToolbar }}
+            slotProps={{ toolbar: { showQuickFilter: true } }}
             disableDensitySelector
             getRowClassName={(params) =>
               params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
