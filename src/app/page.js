@@ -1,6 +1,8 @@
 "use client";
+import { getLog } from "@/data/log";
 import {
   Box,
+  MenuItem,
   Paper,
   Select,
   Stack,
@@ -10,43 +12,133 @@ import {
   styled,
 } from "@mui/material";
 import { DataGrid, GridToolbar, gridClasses } from "@mui/x-data-grid";
+import { useEffect } from "react";
+import useSWRMutation from "swr/mutation";
 
 const ODD_OPACITY = 0.2;
 
-const sample_data = 
-[
+const sample_data = [
   {
     id: 1,
-    "action": "End",
-    "details": {
-      "email": "alice@example.com",
-      "subject": "Application Submission for Alice Johnson"
+    action: "End",
+    details: {
+      email: "alice@example.com",
+      subject: "Application Submission for Alice Johnson",
     },
-    "timestamp": "2024-10-30T04:10:05.346003+00:00",
-    "workflow": "Application Submission"
+    timestamp: "2024-10-30T04:10:05.346003+00:00",
+    workflow: "Application Submission",
   },
   {
     id: 2,
-    "action": "Email Sent",
-    "details": {
-      "email": "alice@example.com",
-      "subject": "Application Submission for Alice Johnson"
+    action: "Email Sent",
+    details: {
+      email: "alice@example.com",
+      subject: "Application Submission for Alice Johnson",
     },
-    "timestamp": "2024-10-30T04:09:05.346003+00:00",
-    "workflow": "Application Submission"
+    timestamp: "2024-10-30T04:09:05.346003+00:00",
+    workflow: "Application Submission",
   },
   {
     id: 3,
-    "action": "Start",
-    "details": {
-      "email": "james@example.com",
-      "subject": "Application Submission for Alice Johnson"
+    action: "Start",
+    details: {
+      email: "alice@example.com",
+      subject: "Application Submission for Alice Johnson",
     },
-    "timestamp": "2024-10-30T04:08:05.346003+00:00",
-    "workflow": "Application Submission"
+    timestamp: "2024-10-30T04:08:05.346003+00:00",
+    workflow: "Application Submission",
   },
-]
-
+  {
+    id: 4,
+    action: "End",
+    details: {
+      email: "bob@example.com",
+      subject: "IMMI Notification for Bob Brown",
+    },
+    timestamp: "2024-10-30T05:20:15.122003+00:00",
+    workflow: "IMMI Notification",
+  },
+  {
+    id: 5,
+    action: "Email Sent",
+    details: {
+      email: "bob@example.com",
+      subject: "IMMI Notification for Bob Brown",
+    },
+    timestamp: "2024-10-30T05:19:15.122003+00:00",
+    workflow: "IMMI Notification",
+  },
+  {
+    id: 6,
+    action: "Start",
+    details: {
+      email: "bob@example.com",
+      subject: "IMMI Notification for Bob Brown",
+    },
+    timestamp: "2024-10-30T05:18:15.122003+00:00",
+    workflow: "IMMI Notification",
+  },
+  {
+    id: 7,
+    action: "End",
+    details: {
+      email: "charlie@example.com",
+      subject: "Welcome Packet for Charlie Clark",
+    },
+    timestamp: "2024-10-30T06:15:45.766003+00:00",
+    workflow: "Welcome Packet",
+  },
+  {
+    id: 8,
+    action: "Email Sent",
+    details: {
+      email: "charlie@example.com",
+      subject: "Welcome Packet for Charlie Clark",
+    },
+    timestamp: "2024-10-30T06:14:45.766003+00:00",
+    workflow: "Welcome Packet",
+  },
+  {
+    id: 9,
+    action: "Start",
+    details: {
+      email: "charlie@example.com",
+      subject: "Welcome Packet for Charlie Clark",
+    },
+    timestamp: "2024-10-30T06:13:45.766003+00:00",
+    workflow: "Welcome Packet",
+  },
+  {
+    id: 10,
+    action: "End",
+    details: {
+      email: "diana@example.com",
+      subject: "Profile Update Confirmation for Diana Prince",
+    },
+    timestamp: "2024-10-30T07:05:32.086003+00:00",
+    workflow: "Profile Update",
+  },
+  {
+    id: 11,
+    action: "Email Sent",
+    details: {
+      email: "diana@example.com",
+      subject: "Profile Update Confirmation for Diana Prince",
+    },
+    timestamp: "2024-10-30T07:04:32.086003+00:00",
+    workflow: "Profile Update",
+  },
+  {
+    id: 12,
+    action: "Start",
+    details: {
+      email: "diana@example.com",
+      subject: "Profile Update Confirmation for Diana Prince",
+    },
+    timestamp: "2024-10-30T07:03:32.086003+00:00",
+    workflow: "Profile Update",
+  },
+];
 
 const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
   [`& .${gridClasses.row}.even`]: {
@@ -84,23 +176,52 @@ const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
 const columns = [
   { field: "workflow", headerName: "Workflow", width: 200 },
   { field: "action", headerName: "Action", width: 200 },
-  { field: "email", headerName: "Email", width: 200, valueGetter: (value,row) => row.details.email },
-  { field: "subject", headerName: "Subject", width: 200, valueGetter: (value,row) => row.details.subject },
+  {
+    field: "email",
+    headerName: "Email",
+    width: 200,
+    valueGetter: (value, row) => row.details.email,
+  },
+  {
+    field: "subject",
+    headerName: "Subject",
+    width: 200,
+    valueGetter: (value, row) => row.details.subject,
+  },
 ];
 
 export default function Home() {
+  const { trigger,isMutating,data,error } = useSWRMutation(
+    "log",
+    getLog
+  );
+
+  useEffect(() => {
+    trigger({logType:"IMMI", date:new Date()});
+  }, []);
+
+
+
+
+  const handleWorkFlowChange = (event) => {
+    console.log(event.target.value);
+  };
+
+  const handleDateChange = (event) => {
+    console.log(event.target.value);
+  };
+
   return (
     <Paper sx={{ minHeight: "90vh" }}>
-      <Box
-        sx={{
-          height: "80vh",
-          p: 3,
-          display: "flex",
-          flexDirection: "column",
-          gap: "2",
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems:"center", justifyContent:"space-between", margin:'10px'}}>
+      <Stack direction="column" sx={{ padding: "20px" }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            margin: "10px",
+          }}
+        >
           <Typography variant="h6" sx={{ fontWeight: "medium" }}>
             Email Logs
           </Typography>
@@ -110,11 +231,12 @@ export default function Home() {
               variant="outlined"
               defaultValue="IMMI"
               sx={{ width: "200px" }}
+              onChange={handleWorkFlowChange}
             >
-              <option value="IMMI">IMMI</option>
-              <option value="bridging">Bridging</option>
-              <option value="jotform">Jotform</option>
-              <option value="s56">S56</option>
+              <MenuItem value="IMMI">IMMI</MenuItem>
+              <MenuItem value="bridging">Bridging</MenuItem>
+              <MenuItem value="jotform">Jotform</MenuItem>
+              <MenuItem value="s56">S56</MenuItem>
             </Select>
             <TextField
               label="Date"
@@ -122,12 +244,12 @@ export default function Home() {
               variant="outlined"
               sx={{ width: "200px" }}
               defaultValue="2021-10-01"
+              onChange={handleDateChange}
             />
-
           </Stack>
         </Box>
 
-        <Box sx={{ flexGrow: "1", width: "100%" }}>
+        <Box sx={{ minWidth: "80vh" }}>
           <StripedDataGrid
             rows={sample_data}
             columns={columns}
@@ -139,7 +261,7 @@ export default function Home() {
             }
           />
         </Box>
-      </Box>
+      </Stack>
     </Paper>
   );
 }

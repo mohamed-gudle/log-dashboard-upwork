@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import useSWR, { mutate } from "swr";
 
-import axios, { fetcher, endpoints } from "src/utils/axios";
+import axios, { fetcher, endpoints } from "@/utils/axios";
 
 // ----------------------------------------------------------------------
 
@@ -10,12 +10,6 @@ const LOG_ENDPOINTS = {
   bridging: "/workflows/bridging",
   jotform: "/workflows/jotform",
   s56: "/workflows/s56",
-};
-
-const swrOptions = {
-  revalidateIfStale: enableServer,
-  revalidateOnFocus: enableServer,
-  revalidateOnReconnect: enableServer,
 };
 
 // ----------------------------------------------------------------------
@@ -39,4 +33,13 @@ export function useGetLog(logType, date = new Date()) {
   }, [data, error, isLoading, isValidating]);
 
   return memoizedValue;
+}
+
+export async function getLog(url, { arg }) {
+  const { logType, date } = arg;
+
+  console.log("getLog", logType, date);
+  const dateString = date.toISOString();
+  const response = await axios.get(`${LOG_ENDPOINTS[logType]}/${dateString}`);
+  return response.data;
 }
