@@ -10,7 +10,6 @@ import {
   styled,
 } from "@mui/material";
 import { DataGrid, GridToolbar, gridClasses } from "@mui/x-data-grid";
-import { DatePicker, LocalizationProvider, AdapterDayjs } from "@mui/x-date-pickers";
 
 const ODD_OPACITY = 0.2;
 
